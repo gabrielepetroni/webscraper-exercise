@@ -3,6 +3,7 @@ from flask import Flask, render_template
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from bs4 import BeautifulSoup
+import os
 
 
 
@@ -88,4 +89,5 @@ def data_retrieval():
     return entries
 
 if __name__ == '__main__':
-   app.run()
+   port = int(os.environ.get("PORT", 5000))
+   app.run(host="0.0.0.0", port=port)
