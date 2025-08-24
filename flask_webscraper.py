@@ -17,9 +17,6 @@ from zoneinfo import ZoneInfo
 # Target URL
 T_URL = "https://news.ycombinator.com"
 
-# Page entries
-entries = []
-
 # Flask web app initialization
 app = Flask(__name__)
 
@@ -29,15 +26,27 @@ def index():
 
 @app.route('/firstfilter')
 def firstfilter():
-    data_retrieval()
-    return render_template('dataviz.html', entries=entries)
+    entries = data_retrieval()
+
+    entries = [entry for entry in entries if len(entry["title"].split(' ')) >= 6]
+    
+    entries = sorted(entries, key=lambda x: int(x['ncomments']), reverse=True)
+
+    return render_template('dataviz.html', entries=entries, isfirsttask=True)
 
 @app.route('/secondfilter')
 def secondfilter():
-    data_retrieval()
-    return render_template('dataviz.html', entries=entries)
+    entries = data_retrieval()
+
+    entries = [entry for entry in entries if len(entry["title"].split(' ')) <= 5]
+    
+    entries = sorted(entries, key=lambda x: int(x['score']), reverse=True)
+
+    return render_template('dataviz.html', entries=entries, isfirsttask=False)
 
 def data_retrieval():
+    # Page entries list
+    entries = []
     # Set up headless Chrome
     chrome_options = Options()
     chrome_options.add_argument("--headless")
@@ -59,6 +68,7 @@ def data_retrieval():
         entry["title"] = row.find('span', class_='titleline').text
         entry["score"] = row.find_next_sibling('tr').find('span', class_='score').text.strip(' points') if row.find_next_sibling('tr').find('span', class_='score') else '0 points'.strip(' points')
         entry["ncomments"] = row.find_next_sibling('tr').find_all('a')[-1].text.strip(' comments') if row.find_next_sibling('tr').find_all('a') else '0 comments'.strip(' comments')
+        entry["ncomments"] = "0" if not entry["ncomments"].isnumeric() else entry["ncomments"]
         # Print each entry for debugging
         print(entry["id"]+" - "+entry["title"]+" - "+entry["score"]+" - "+entry["ncomments"])
 
@@ -66,7 +76,7 @@ def data_retrieval():
         entries.append(entry)
 
     driver.quit()
+    return entries
 
 if __name__ == '__main__':
-   print(data_retrieval())
-   #app.run()
+   app.run()

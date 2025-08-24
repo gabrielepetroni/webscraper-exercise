@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <title>Hello from Flask</title>
+    <title>Webscraper Exercise</title>
     <meta charset="utf-8"> 
      <meta name="viewport" content="width=device-width, initial-scale=1">
      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
@@ -9,16 +9,37 @@
 <body>
     <nav class="navbar bg-body-tertiary">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#">
+        <a class="navbar-brand" href="/">
         Webscraper Exercise
         </a>
     </div>
     </nav>
-    {% if person %}
-  <h1>Hello {{ person }}!</h1>
-    {% else %}
-  <h1>Hello, World!</h1>
-    {% endif %}
+    <div class="card" style="margin: 15px;">
+        <div class="card-header">
+        {% if isfirsttask %}
+            First task
+        {% else %}
+            Second task
+        {% endif %}
+        </div>
+        <div class="card-body">
+        {% if isfirsttask %}
+            Filter the first 30 entries with more than five words in the title, ordered by the number of comments first.
+        {% else %}
+            Filter the first 30 entries with less than or equal to five words in the title, ordered by points.
+        {% endif %}
+        </div>
+    </div>
+   <ol class="list-group list-group-numbered" style="margin: 15px;">
+    {% for entry in entries %}
+      <li class="list-group-item d-flex justify-content-between align-items-start">
+        <div class="ms-2 me-auto">
+          <div class="fw-bold">{{ entry.title }}</div>
+        </div>
+        <span class="badge bg-primary rounded-pill">Score: {{ entry.score }} | Comments: {{ entry.ncomments }}</span>
+        </li>
+    {% endfor %}
+    </ol>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js" integrity="sha384-ndDqU0Gzau9qJ1lfW4pNLlhNTkCfHzAVBReH9diLvGRem5+R9g2FzA8ZGN954O5Q" crossorigin="anonymous"></script>
 </body> 
 </html>
