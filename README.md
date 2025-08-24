@@ -6,15 +6,12 @@ Developed by Gabriele Petroni as part of Stack Builder's hiring process.
 The goal of this exercise is to scrape data from the website [Hacker News](https://news.ycombinator.com) and apply filtering techniques to retrieve specific data and order it by the given criteria. It is possible to visualize said data as an HTML webpage using a web browser.
 
 ## Usage
-Install the required packages from requirements.txt file
+Install the required packages from requirements.txt file; then run the Flask app
 ```
 $ pip install -r requirements.txt
-```
-<br>
-Run the Flask app by typing
-```
 python3 flask_webscraper.py
 ```
+
 A development server should be running by default on http://127.0.0.1:5000; if not, check your system configuration and available ports.
 
 ## Code structure
