@@ -9,7 +9,7 @@ The goal of this exercise is to scrape data from the website [Hacker News](https
 Install the required packages from requirements.txt file; then run the Flask app
 ```
 $ pip install -r requirements.txt
-python3 flask_webscraper.py
+$ python3 flask_webscraper.py
 ```
 
 A development server should be running by default on http://127.0.0.1:5000; if not, check your system configuration and available ports.
