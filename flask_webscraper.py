@@ -1,53 +1,59 @@
 
 from flask import Flask, render_template
-import os
-import time
-import json
-import requests
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
-from datetime import datetime, timedelta
 
-import pandas as pd
-from pathlib import Path
-from zoneinfo import ZoneInfo
+
 
 # Target URL
 T_URL = "https://news.ycombinator.com"
+
+def remove_non_alnumeric(list):
+    return [''.join(filter(str.isalnum, item)) for item in list]
+    
 
 # Flask web app initialization
 app = Flask(__name__)
 
 @app.route('/')
 def index():
-    return 'Index Page'
+      return render_template('index.html')
 
+# First task: filter entries with more than 5 words in the title and sort by number of comments
 @app.route('/firstfilter')
 def firstfilter():
+    # Retrieve entries
     entries = data_retrieval()
 
-    entries = [entry for entry in entries if len(entry["title"].split(' ')) >= 6]
-    
+    # Filter entries with more than 5 words in the title
+    entries = [entry for entry in entries if len(remove_non_alnumeric(entry['title'].split(" ")))  >= 6]
+
+    # Sort entries by number of comments in descending order
     entries = sorted(entries, key=lambda x: int(x['ncomments']), reverse=True)
 
+    # Render the dataviz template with the filtered and sorted entries
     return render_template('dataviz.html', entries=entries, isfirsttask=True)
 
+# Second task: filter entries with 5 or less words in the title and sort by score
 @app.route('/secondfilter')
 def secondfilter():
+    # Retrieve entries
     entries = data_retrieval()
 
-    entries = [entry for entry in entries if len(entry["title"].split(' ')) <= 5]
-    
+    # Filter entries with 5 or less words in the title
+    entries = [entry for entry in entries if len(remove_non_alnumeric(entry['title'].split(" "))) <= 5] 
+
+    # Sort entries by score in descending order
     entries = sorted(entries, key=lambda x: int(x['score']), reverse=True)
 
+    # Render the dataviz template with the filtered and sorted entries
     return render_template('dataviz.html', entries=entries, isfirsttask=False)
 
 def data_retrieval():
     # Page entries list
     entries = []
-    # Set up headless Chrome
+    # Set up headless Chrome using Selenium
     chrome_options = Options()
     chrome_options.add_argument("--headless")
     driver = webdriver.Chrome(options=chrome_options)
@@ -62,12 +68,13 @@ def data_retrieval():
     # Extract data 
     rows = soup.find_all('tr', class_='athing submission')
     for row in rows:
-        # Create empty entry dictionary
+        # Create empty entry dictionary, collecting only the required fields
         entry = {}
         entry["id"] = row.find('span', class_='rank').text.strip('.')
-        entry["title"] = row.find('span', class_='titleline').text
+        entry["title"] = " ".join(row.find('span', class_='titleline').text.split(" ")[:-1])
         entry["score"] = row.find_next_sibling('tr').find('span', class_='score').text.strip(' points') if row.find_next_sibling('tr').find('span', class_='score') else '0 points'.strip(' points')
         entry["ncomments"] = row.find_next_sibling('tr').find_all('a')[-1].text.strip(' comments') if row.find_next_sibling('tr').find_all('a') else '0 comments'.strip(' comments')
+        # additional check to ensure alphanumeric values for the comment field
         entry["ncomments"] = "0" if not entry["ncomments"].isnumeric() else entry["ncomments"]
         # Print each entry for debugging
         print(entry["id"]+" - "+entry["title"]+" - "+entry["score"]+" - "+entry["ncomments"])
